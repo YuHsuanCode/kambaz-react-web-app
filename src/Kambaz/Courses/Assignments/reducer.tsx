@@ -10,38 +10,25 @@ const assignmentsSlice = createSlice({
     name: "assignments",
     initialState,
     reducers:{
-        addAssignment: (state, {payload: assignment}) => {
-            
-            const newAssignment = {
-                _id: new Date().getTime().toString(),
-                title: assignment.title,
-                description: assignment.descriptions,
-                points: assignment.points,
-                dueDate: assignment.dueDate,
-                availableFrom: assignment.availableFrom,
-                availableTo: assignment.availableTo,
-                course: assignment.course
-                };
-            state.assignments = [...state.assignments, newAssignment] as any;
+        setAssignments: (state, { payload })=> {
+            state.assignments = payload;
+        },
+        addAssignment: (state, {payload}) => {
+            state.assignments.push(payload);
         },
 
-        deleteAssignment: (state, {payload: assignmentId}) => {
+        deleteAssignment: (state, {payload}) => {
             state.assignments = state.assignments.filter(
-            (a: any) => a._id !== assignmentId);
+            (a) => a._id !== payload);
         },
 
-        updateAssignment: (state, {payload: assignment}) => {
-            state.assignments = state.assignments.map((a: any) => 
-                a._id === assignment._id ? assignment : a) as any;
-        },
-
-        editAssignment: (state, { payload: assignmentId })=> {
-            state.assignments = state.assignments.map((a: any)=>
-            a._id === assignmentId ? { ...a, editing: true } : a
-            ) as any;
+        updateAssignment: (state, {payload}) => {
+            state.assignments = state.assignments.map((a) => 
+                a._id === payload._id ? payload : a
+            );
         },
     },
 });
 
-export const {addAssignment, deleteAssignment, updateAssignment, editAssignment} = assignmentsSlice.actions;
+export const {addAssignment, deleteAssignment, updateAssignment, setAssignments} = assignmentsSlice.actions;
 export default assignmentsSlice.reducer;
