@@ -1,4 +1,21 @@
-# React + TypeScript + Vite
+# Kambaz-React-Web-App
+## Overview
+This project is a Canvas Clone project built for CS5160. The Canvas Clone demonstrates core concepts including React + TypeScript + Vite.
+
+## System Architecture
+- 
+## Core Components
+- Shell & navigation
+  KambazNavigation: Left nav: Account, DashBoard, Courses, Calendar, Inbox, Labs
+  Kambaz/index.tsx: Owns courses/course state, CRUD helpers, and routes under /Kambaz.
+- Account
+  Signin, Signup, Profile
+  Session - Session restore
+  useCoursePermissions: Role-based UI(ADMIN/FACULTY/TA/STUDENT/USER) for dashboard and course tools.
+- Dashboard
+  Lists courses, role-specific actions(Faculty: create/edt, student: enroll)
+- Course
+  use cid renders course sidebar + nested Routes, redirercts if unknown course
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
