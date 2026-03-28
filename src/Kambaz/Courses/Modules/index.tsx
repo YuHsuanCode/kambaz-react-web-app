@@ -1,12 +1,12 @@
 import { BsGripVertical } from "react-icons/bs";
-import {useParams} from "react-router";
+import { useParams } from "react-router-dom";
 
 import ModulesControls from "./ModulesControls";
 import LessonControlButtons from "./LessonControlButtons";
 import ModuleControlButtons from "./ModuleControlButtons";
 import {useSelector, useDispatch} from "react-redux";
 
-import {setModules,addModule, editModule, updateModule, deleteModule} from "./reducer";
+import {setModulesForCourse,addModule, editModule, updateModule, deleteModule} from "./reducer";
 import {useState, useEffect} from "react";
 
 import * as coursesClient from "../client";
@@ -20,7 +20,9 @@ export default function Modules(){
     const canEdit = canManageCourse;
 
     const {modules} = useSelector((state:any) => state.modulesReducer);
-    const courseModules = modules.filter((m: any) => m.course === cid);
+    const courseModules = modules.filter(
+        (m: any) => String(m.course) === String(cid)
+    );
     const dispatch = useDispatch();
 
     //save
@@ -44,9 +46,14 @@ export default function Modules(){
     };
 
     //fetch
-    const fetchModules = async()=>{
-        const modules = await coursesClient.findModulesForCourse(cid as string);
-        dispatch(setModules(modules));
+    const fetchModules = async () => {
+        if (!cid) return;
+        try {
+            const list = await coursesClient.findModulesForCourse(cid);
+            dispatch(setModulesForCourse({ courseId: cid, modules: list }));
+        } catch (e) {
+            console.error("Failed to load modules:", e);
+        }
     };
     useEffect(()=>{
         if (cid) fetchModules();
@@ -63,6 +70,11 @@ export default function Modules(){
             }} /> */}
 
                 <ul id="wd-modules" className="list-group rounded-0">
+                    {courseModules.length === 0 && (
+                        <li className="list-group-item text-muted">
+                            No modules for this course yet.
+                        </li>
+                    )}
                     {courseModules.map((module:any) => (
                         <li key={module._id} className="wd-module list-group-item p-0 mb-5 fs-5 border-gray">
                             <div className="wd-title p-3 ps-2 bg-secondary">

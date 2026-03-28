@@ -34,13 +34,35 @@ const modulesSlice = createSlice({
             state.modules = modules;
         },
 
-        addModule: (state, {payload: module}: {payload: Omit<Module, '_id' | 'lessons'>}) => {
+        /** Replaces only modules for this course; stamps `course` when the API omits it. */
+        setModulesForCourse: (
+            state,
+            {
+                payload,
+            }: {
+                payload: { courseId: string; modules: Module[] };
+            }
+        ) => {
+            const { courseId, modules: incoming } = payload;
+            const normalized = incoming.map((m) => ({
+                ...m,
+                course: (m as Module).course ?? courseId,
+            }));
+            state.modules = [
+                ...state.modules.filter(
+                    (m) => String(m.course) !== String(courseId)
+                ),
+                ...normalized,
+            ];
+        },
+
+        addModule: (state, { payload: module }: { payload: Partial<Module> & { name: string; course: string } }) => {
             const newModule: Module = {
-                _id: uuidv4(),
+                _id: module._id ?? uuidv4(),
                 name: module.name,
-                description: module.description,
+                description: module.description ?? "",
                 course: module.course,
-                lessons: [],
+                lessons: module.lessons ?? [],
             };
             state.modules = [...state.modules, newModule];
         },
@@ -64,5 +86,12 @@ const modulesSlice = createSlice({
     },
 });
 
-export const { addModule, deleteModule, updateModule, editModule, setModules } = modulesSlice.actions;
+export const {
+    addModule,
+    deleteModule,
+    updateModule,
+    editModule,
+    setModules,
+    setModulesForCourse,
+} = modulesSlice.actions;
 export default modulesSlice.reducer;
