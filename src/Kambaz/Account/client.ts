@@ -29,6 +29,11 @@ export const updateUser = async (user:any)=>{
     return response.data;
 };
 
+export const fetchAllUsers = async () => {
+    const { data } = await axios.get(USERS_API);
+    return data;
+};
+
 //Course
 export const findMyCourses = async() => {
     //const {data} = await axiosWithCredentials.get(`${USERS_API}/current/courses`);

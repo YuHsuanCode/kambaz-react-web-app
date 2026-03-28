@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { enroll, unenroll } from "./Courses/enrollmentReducer";
 import * as courseClient from "./Courses/client";
+import { useCoursePermissions } from "./Account/useCoursePermissions";
 
 //import * as userClient from "./Account/client";
 
@@ -34,8 +35,7 @@ export default function Dashboard({
   const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
   const [allCourses, setAllCourses] = useState<any[]>(courses);
   
-  const isFaculty = currentUser?.role === "FACULTY";
-  const isStudent = currentUser?.role === "STUDENT";
+  const { canManageCourse, isStudentDashboard } = useCoursePermissions();
 
   // Fetch all courses
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function Dashboard({
   // Fetch enrolled courses for student
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
-      if (currentUser && isStudent) {
+      if (currentUser && isStudentDashboard) {
         try {
           const enrollments = await courseClient.getEnrollments(currentUser._id);
           // Get the full course details for enrolled courses
@@ -76,7 +76,7 @@ export default function Dashboard({
       }
     };
     fetchEnrolledCourses();
-  }, [currentUser, isStudent]);
+  }, [currentUser, isStudentDashboard]);
 
   // Handle course selection for editing
   const handleCourseSelect = async (selectedCourse: any) => {
@@ -142,7 +142,7 @@ export default function Dashboard({
           {error}
         </div>
       )}
-      {currentUser && currentUser.role === "FACULTY" && (
+      {currentUser && canManageCourse && (
         <div>
           <h5>
             New Course
@@ -169,7 +169,7 @@ export default function Dashboard({
         <h2 id="wd-dashboard-published">
           {showAllCourses ? "Published Courses" : "My Enrolled Courses"} ({displayedCourses.length})
         </h2>
-        {isStudent && (
+        {isStudentDashboard && (
           <button className="btn btn-primary"
             onClick={() => setShowAllCourses(!showAllCourses)}
           >
@@ -193,8 +193,14 @@ export default function Dashboard({
                 <Card>
                   <Link 
                     className="wd-dashboard-course-link text-decoration-none text-dark"
-                    to={isEnrolled(course._id) ? `/Kambaz/Courses/${course._id}/Modules` : "#"}
-                    onClick={(e) => !isEnrolled(course._id) && e.preventDefault()}
+                    to={
+                      canManageCourse || isEnrolled(course._id)
+                        ? `/Kambaz/Courses/${course._id}/Modules`
+                        : "#"
+                    }
+                    onClick={(e) => {
+                      if (!canManageCourse && !isEnrolled(course._id)) e.preventDefault();
+                    }}
                   >
                     <Card.Img 
                       variant="top" 
@@ -217,14 +223,14 @@ export default function Dashboard({
                   
                   <Card.Body className="pt-0">
                     {/*FACULTY*/}
-                    {isFaculty && (
+                    {canManageCourse && (
                       <div className="d-flex flex-column gap-2 mt-3">
                         <div className="d-flex justify-content-between gap-2">
                           <button onClick={async (e) => {
                               e.preventDefault();
                               try {
                                 await courseClient.findModulesForCourse(course._id);
-                                navigate(`/Kambaz/Courses/${course._id}/modules`);
+                                navigate(`/Kambaz/Courses/${course._id}/Modules`);
                               } catch (error) {
                                 console.error("Error fetching modules:", error);
                                 setError("Failed to load modules. Please try again later.");
@@ -262,7 +268,7 @@ export default function Dashboard({
                         </div>
                       </div>
                     )}
-                    {isStudent && (
+                    {isStudentDashboard && (
                       <div className="d-flex flex-column gap-2">
                         <button 
                           onClick={() => handleEnrollToggle(course._id)}

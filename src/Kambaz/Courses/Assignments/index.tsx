@@ -15,9 +15,11 @@ import {
 import AssignmentsControls from "./AssignmentsControls";
 import * as client from "./client";
 import AssignmentsEditor from "./AssignmentsEditor";
+import { useCoursePermissions } from "../../Account/useCoursePermissions";
 
 export default function Assignments() {
   const { cid } = useParams();
+  const { canManageCourse } = useCoursePermissions();
   const dispatch = useDispatch();
   const assignments = useSelector(
     (state: any) => state.assignmentReducer.assignments
@@ -88,6 +90,7 @@ export default function Assignments() {
 
   return (
     <div id="wd-assignments" className="text-nowrap">
+      {canManageCourse && (
       <AssignmentsControls
         assignmentName={assignment}
         setAssignmentName={setAssignment}
@@ -95,10 +98,14 @@ export default function Assignments() {
         dialogTitle={isEditing ? "Edit Assignment" : "Add Assignment"}
         saveAssignment={() => saveAssignment(assignment)}
       />
+      )}
+      {!canManageCourse && (
+        <h4 className="mb-3">Assignments</h4>
+      )}
 
       <br />
 
-      {showEditor && (
+      {canManageCourse && showEditor && (
         <AssignmentsEditor
           dialogTitle={isEditing ? "Edit Assignment" : "Add Assignment"}
           assignmentName={assignment}
@@ -128,6 +135,7 @@ export default function Assignments() {
                 0
               )}
               onAdd={handleAdd}
+              readOnly={!canManageCourse}
             />
           </div>
 
@@ -154,6 +162,7 @@ export default function Assignments() {
                   assignmentId={a._id}
                   deleteAssignment={removeAssignment}
                   editAssignment={handleEdit}
+                  readOnly={!canManageCourse}
                 />
 
                 <br />

@@ -2,15 +2,18 @@
 //import * as db from "../../Database"; 
 import {Link, useParams, useNavigate} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateAssignment } from "./reducer";
 import "./index.css";
 import * as client from "./client";
+import { useCoursePermissions } from "../../Account/useCoursePermissions";
 
 export default function Editor(){
     const {cid, aid} = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { canManageCourse } = useCoursePermissions();
+    const readOnly = !canManageCourse;
     //const assignments = db.assignments;
     const assignment = useSelector((state: any) => 
         state.assignmentReducer.assignments.find((a: any) => a._id === aid)
@@ -24,6 +27,18 @@ export default function Editor(){
         availableFrom: assignment?.availableFrom || "",
         availableTo: assignment?.availableTo || "",
     });
+
+    useEffect(() => {
+        if (!assignment) return;
+        setFormData({
+            title: assignment.title || "",
+            description: assignment.description || "",
+            points: assignment.points || "",
+            dueDate: assignment.dueDate || "",
+            availableFrom: assignment.availableFrom || "",
+            availableTo: assignment.availableTo || "",
+        });
+    }, [assignment]);
     {/*    const handleSave = () => {
         // Dispatch update action with combined assignment data
         dispatch(updateAssignment({
@@ -35,6 +50,7 @@ export default function Editor(){
        
         navigate(`/Kambaz/Courses/${cid}/Assignments`); */}
     const handleSave = async () => {
+        if (readOnly) return;
         try {
             // Update assignment on server
             await client.updateAssignment(
@@ -67,6 +83,14 @@ export default function Editor(){
         navigate(`/Kambaz/Courses/${cid}/Assignments`);
     };
 
+    if (!assignment) {
+        return (
+            <div id="wd-course-assignment-editor">
+                <p className="text-muted">Loading assignment…</p>
+            </div>
+        );
+    }
+
     return(
         <div id="wd-course-assignment-editor">
             <label htmlFor="wd-name">Assignment Name</label><br/>
@@ -74,15 +98,13 @@ export default function Editor(){
                 <div key={assignment._id}> 
                     <Link to = {`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}></Link>
                     
-                    {/*<input  id="wd-name" value={assignment.title} className="form-control"/> <br/> */}
                     <input  id="wd-name" value={formData.title} className="form-control"
+                        readOnly={readOnly}
                         onChange={(e) => setFormData({...formData, title: e.target.value})}/> <br/>
 
-                    {/* <textarea id="wd-description" className="form-control" contentEditable="true"
-                        value={assignment.description}
-                            onChange={(e) => setFormData({  */}
                     <textarea id="wd-description" className="form-control" 
                         value={formData.description}
+                        readOnly={readOnly}
                         onChange={(e) => setFormData({ 
                             ...formData, 
                             description: e.target.value })}
@@ -94,6 +116,7 @@ export default function Editor(){
                         <label htmlFor="wd-points" className="wd-grid-col-two-thirds-page">Points</label>
                         {/*<input id="wd-points"  className="form-control" value={assignment.points}  */}
                         <input id="wd-points"  className="form-control" value={formData.points} 
+                            readOnly={readOnly}
                             onChange={(e) => setFormData({ 
                             ...formData, points: e.target.value })}/> 
                     
@@ -137,6 +160,7 @@ export default function Editor(){
                             
                             <label htmlFor="wd-due-date" className="p-2 fw-bold">Due</label><br/>
                             <input type="date" id="wd-due-date" value={formData.dueDate} className="form-control"
+                                readOnly={readOnly}
                                 onChange={(e) => setFormData({ 
                                 ...formData, dueDate: e.target.value })}/>
                             
@@ -145,11 +169,13 @@ export default function Editor(){
                             
                             <input type="date" id="wd-available-from" className="wd-grid-col-half-page form-control" 
                                 value={formData.availableFrom}
+                                readOnly={readOnly}
                                 onChange={(e) => setFormData({ 
                                 ...formData, availableFrom: e.target.value })}/>
                             
                             <input type="date" id="wd-available-until" value={formData.availableTo} 
                                 className="wd-grid-col-half-page form-control"
+                                readOnly={readOnly}
                                 onChange={(e) => setFormData({ 
                                 ...formData, availableTo: e.target.value })}/>
                         </div>
@@ -159,11 +185,12 @@ export default function Editor(){
             
             <div style={{ bottom:0, textAlign: "right" }}>
                 <hr/>
-                <button onClick={handleCancel}>Cancel</button>
-                {/*<Link to={`/Kambaz/Courses/${cid}/Assignments`}>
-                    <button onClick = {handleSave} */}
-                <button onClick={handleSave}
+                <button type="button" className="btn btn-secondary me-2" onClick={handleCancel}>Cancel</button>
+                {!readOnly && (
+                <button type="button" onClick={handleSave}
+                    className="btn btn-danger"
                     style={{color:"white", backgroundColor:"red" }}>Save</button>
+                )}
             </div>
         </div> 
     );

@@ -7,12 +7,17 @@ import DeleteDialog from "./DeleteDialog";
 export default function AControlButtons({
     assignmentId, 
     deleteAssignment,
-    editAssignment
+    editAssignment,
+    readOnly = false,
 }: {
     assignmentId: string, 
     deleteAssignment: (assignmentId: string) => void;
     editAssignment: (assignmentId: string) => void;
+    readOnly?: boolean;
 }) {
+    if (readOnly) {
+        return null;
+    }
     return(
         <div className="float-end">
             <FaPencil onClick={() => editAssignment(assignmentId)} className="text-primary me-3" />

@@ -3,11 +3,15 @@ import GreenCheckmark from "./GreenCheckmark";
 import ModuleEditor from "./ModuleEditor";
 
 export default function ModulesControls(
-  {moduleName, setModuleName, addModule} :
+  {moduleName, setModuleName, addModule, readOnly = false} :
   { moduleName: string; 
     setModuleName:(name:string) => void; 
-    addModule:() => void; 
+    addModule:() => void;
+    readOnly?: boolean;
   }) {
+  if (readOnly) {
+    return null;
+  }
   return (
     <div id="wd-modules-controls" className="text-nowrap">
       <button id="wd-add-module-btn" className="btn btn-lg btn-danger me-1 float-end"

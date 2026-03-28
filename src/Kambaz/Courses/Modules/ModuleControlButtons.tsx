@@ -6,12 +6,16 @@ import {FaTrash} from "react-icons/fa";
 import {FaPencil} from "react-icons/fa6";
 
 export default function ModuleControlButtons(
-    {moduleId, deleteModule, editModule} : {
+    {moduleId, deleteModule, editModule, readOnly = false} : {
         moduleId: string; 
         deleteModule: (moduleId: string) => void; 
-        editModule: (moduleId: string) => void})
+        editModule: (moduleId: string) => void;
+        readOnly?: boolean;
+    })
 {
-
+    if (readOnly) {
+        return null;
+    }
     return(
         <div className="float-end">
             <FaPencil onClick={() => editModule(moduleId)} className="text-primary me-3" />
