@@ -24,7 +24,7 @@ This project is a Canvas Clone project built for CS5610. It demonstrates a full-
       * Restores session from backend
   3. useCoursePermissions
       * Role-based UI rendering:
-         ADMIN/FACULTY/TA/STUDENT/USER
+         ADMIN/FACULTY/TA/STUDENT
         
 - Dashboard
   1. Displays enrolled courses
