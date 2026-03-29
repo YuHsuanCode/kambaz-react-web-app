@@ -1,67 +1,82 @@
 # Kambaz-React-Web-App
 ## Overview
-This project is a Canvas Clone project built for CS5160. The Canvas Clone demonstrates core concepts including React + TypeScript + Vite.
+This project is a Canvas Clone project built for CS5610. It demonstrates a full-featured fronted architecture using React + TypeScript + Vite + Redux. The application supports role-based access control, course management, assignments, and authentication workflows, closely mimicking a real-world LMS.
 
 ## System Architecture
-- 
+- Routing: Hash-based routing(#/Kambaz/...)
+- State Management: Redux slices(courses, modules, assignments, account)
+- API Layer: Axios clients with configurable backend URL.
+- Auth: Session-based(cookie + Redux state)
+  
 ## Core Components
-- Shell & navigation
-  KambazNavigation: Left nav: Account, DashBoard, Courses, Calendar, Inbox, Labs
-  Kambaz/index.tsx: Owns courses/course state, CRUD helpers, and routes under /Kambaz.
+- Shell & Navigation
+  1. KambazNavigation
+      * Left sidebar navigation: Account, DashBoard, Courses, Calendar, Inbox, Labs
+  2. Kambaz/index.tsx:
+      * Root container for Kambaz
+      * Manages course state
+      * Defines routes under /Kambaz.
+        
 - Account
-  Signin, Signup, Profile
-  Session - Session restore
-  useCoursePermissions: Role-based UI(ADMIN/FACULTY/TA/STUDENT/USER) for dashboard and course tools.
+  1. Signin/Signup/Profile
+      * User authentication and profile management
+  2. Session handling
+      * Restores session from backend
+  3. useCoursePermissions
+      * Role-based UI rendering:
+         ADMIN/FACULTY/TA/STUDENT/USER
+        
 - Dashboard
-  Lists courses, role-specific actions(Faculty: create/edt, student: enroll)
-- Course
-  use cid renders course sidebar + nested Routes, redirercts if unknown course
+  1. Displays enrolled courses
+  2. Role-based actions:
+     * Faculty: create/edt
+     * Students: enroll in courses
+       
+- Course Module
+  1. Dynamic routing via :courseId
+  2. Redirects if invalid course
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- CourseNavigation
+  Links: Home, Modules, Piazza, Zoom, Assignments, Quizzes, People, etc.
+  
+  Home
+    - Combines:
+      * Modules preview
+      * Course status widgets
 
-Currently, two official plugins are available:
+  Modules
+    – Fetch modules via API
+    - Uses Redux setModulesForCourse
+    - Displays module + lesson hierarchy.
+      
+  Assignments
+    – Assignment list + editor
+    - Supports:
+      * Create/Edit/Delete
+    - Uses route: fetch assignemnts by :aid
+  
+  People
+    - Displays course roster
+    – Combines:
+      Redux state
+      API (fetchAllUsers)
+    - Filters users by enrollments
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## How pieces connect
+•	HashRouter: #/Kambaz/Courses/:courseId/Modules (HashRouter).
+•	Auth: Session Cookie + currentUser in accountReducer.
+•	Courses: 
+    - Managed in Kambaz/index.tsx
+    - Loaded via userClient.findMyCourses()
+•	Modules / Assignments 
+    - Use useParams().cid
+    - Fetch via API 
+    - Stored in Redux slices for lists and edits.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## Key Technologies
+Fronted Framework: React TypeScript
+Build Tool: Vite
+State Management: Redux Toolkit
+Routing: React Router(HashRouter)
+HTTP Client: Axios
+Auth: Session-based authentication
