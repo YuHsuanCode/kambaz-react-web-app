@@ -63,20 +63,20 @@ This project is a Canvas Clone project built for CS5610. It demonstrates a full-
     - Filters users by enrollments
 
 ## How pieces connect
-•	HashRouter: #/Kambaz/Courses/:courseId/Modules (HashRouter).
-•	Auth: Session Cookie + currentUser in accountReducer.
-•	Courses: 
+- HashRouter: #/Kambaz/Courses/:courseId/Modules (HashRouter).
+- Auth: Session Cookie + currentUser in accountReducer.
+- Courses: 
     - Managed in Kambaz/index.tsx
     - Loaded via userClient.findMyCourses()
-•	Modules / Assignments 
+- Modules / Assignments 
     - Use useParams().cid
     - Fetch via API 
     - Stored in Redux slices for lists and edits.
 
 ## Key Technologies
-Fronted Framework: React TypeScript
-Build Tool: Vite
-State Management: Redux Toolkit
-Routing: React Router(HashRouter)
-HTTP Client: Axios
-Auth: Session-based authentication
+- Fronted Framework: React TypeScript
+- Build Tool: Vite
+- State Management: Redux Toolkit
+- Routing: React Router(HashRouter)
+- HTTP Client: Axios
+- Auth: Session-based authentication
